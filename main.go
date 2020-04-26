@@ -1,7 +1,10 @@
 package main
 
 import (
+	"github.com/mdbooth/gameoflife/rules"
+
 	"fmt"
+	"time"
 
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/imdraw"
@@ -13,14 +16,9 @@ const (
 	CANVAS_WIDTH  = 1024
 	CANVAS_HEIGHT = 1024
 
-	BOARD_WIDTH  = 100
-	BOARD_HEIGHT = 100
-
-	GRID_WIDTH  = float64(CANVAS_WIDTH) / BOARD_WIDTH
-	GRID_HEIGHT = float64(CANVAS_HEIGHT) / BOARD_HEIGHT
+	GRID_WIDTH  = float64(CANVAS_WIDTH) / rules.BOARD_WIDTH
+	GRID_HEIGHT = float64(CANVAS_HEIGHT) / rules.BOARD_HEIGHT
 )
-
-type Board [BOARD_WIDTH][BOARD_HEIGHT]bool
 
 func getTitle(running bool) string {
 	var status string
@@ -37,12 +35,12 @@ func initGrid() *imdraw.IMDraw {
 	grid := imdraw.New(nil)
 	grid.Color = colornames.Lightgrey
 
-	for i := 1.0; i < BOARD_WIDTH; i++ {
+	for i := 1.0; i < rules.BOARD_WIDTH; i++ {
 		x := i * GRID_WIDTH
 		grid.Push(pixel.V(x, 0), pixel.V(x, CANVAS_HEIGHT))
 		grid.Line(1)
 	}
-	for i := 1.0; i < BOARD_HEIGHT; i++ {
+	for i := 1.0; i < rules.BOARD_HEIGHT; i++ {
 		y := i * GRID_HEIGHT
 		grid.Push(pixel.V(0, y), pixel.V(CANVAS_WIDTH, y))
 		grid.Line(1)
@@ -51,12 +49,12 @@ func initGrid() *imdraw.IMDraw {
 	return grid
 }
 
-func updatePieces(pieces *imdraw.IMDraw, board *Board) {
+func updatePieces(pieces *imdraw.IMDraw, board *rules.Board) {
 	pieces.Clear()
 	pieces.Color = colornames.Yellow
 
-	for x := 0; x < BOARD_WIDTH; x++ {
-		for y := 0; y < BOARD_HEIGHT; y++ {
+	for x := 0; x < rules.BOARD_WIDTH; x++ {
+		for y := 0; y < rules.BOARD_HEIGHT; y++ {
 			if board[x][y] {
 				xLower := float64(x)*GRID_WIDTH + 1
 				xUpper := float64(x+1)*GRID_WIDTH - 1
@@ -73,12 +71,12 @@ func updatePieces(pieces *imdraw.IMDraw, board *Board) {
 	}
 }
 
-func getValueUnderMouse(win *pixelgl.Window, board *Board) *bool {
+func getValueUnderMouse(win *pixelgl.Window, board *rules.Board) *bool {
 	pos := win.MousePosition()
 	x := int(pos.X / GRID_WIDTH)
 	y := int(pos.Y / GRID_HEIGHT)
 
-	if 0 > x || x >= BOARD_WIDTH || 0 > y || y >= BOARD_HEIGHT {
+	if 0 > x || x >= rules.BOARD_WIDTH || 0 > y || y >= rules.BOARD_HEIGHT {
 		return nil
 	}
 
@@ -100,10 +98,12 @@ func run() {
 
 	grid := initGrid()
 
-	var board Board
+	var board rules.Board
 
 	pieces := imdraw.New(nil)
 	updatePieces(pieces, &board)
+
+	clock := time.Tick(time.Second)
 
 	for !win.Closed() {
 		if win.JustPressed(pixelgl.KeySpace) {
@@ -128,6 +128,15 @@ func run() {
 				*value = false
 				updatePieces(pieces, &board)
 			}
+		}
+
+		select {
+		case <-clock:
+			if running {
+				rules.UpdateBoard(&board)
+				updatePieces(pieces, &board)
+			}
+		default:
 		}
 
 		win.Clear(colornames.Darkgrey)
