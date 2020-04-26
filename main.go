@@ -103,7 +103,7 @@ func run() {
 	pieces := imdraw.New(nil)
 	updatePieces(pieces, &board)
 
-	clock := time.Tick(time.Second)
+	clock := time.Tick(time.Millisecond * 250)
 
 	for !win.Closed() {
 		if win.JustPressed(pixelgl.KeySpace) {
