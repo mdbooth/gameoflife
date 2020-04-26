@@ -20,7 +20,7 @@ const (
 	GRID_HEIGHT = float64(CANVAS_HEIGHT) / rules.BOARD_HEIGHT
 )
 
-func getTitle(running bool) string {
+func getTitle(running bool, speed int) string {
 	var status string
 	if running {
 		status = "Running"
@@ -28,7 +28,7 @@ func getTitle(running bool) string {
 		status = "Paused"
 	}
 
-	return fmt.Sprintf("Game of Life: %s", status)
+	return fmt.Sprintf("Game of Life: %s, Speed %d", status, speed)
 }
 
 func initGrid() *imdraw.IMDraw {
@@ -83,11 +83,25 @@ func getValueUnderMouse(win *pixelgl.Window, board *rules.Board) *bool {
 	return &board.Pieces[x][y]
 }
 
+func updateClock(clock *time.Ticker, speed int) *time.Ticker {
+	if clock != nil {
+		clock.Stop()
+		clock = nil
+	}
+
+	if speed != 0 {
+		clock = time.NewTicker(time.Second / time.Duration(speed))
+	}
+	return clock
+}
+
 func run() {
 	running := false
+	speed := 5
+	clock := updateClock(nil, speed)
 
 	cfg := pixelgl.WindowConfig{
-		Title:  getTitle(running),
+		Title:  getTitle(running, speed),
 		Bounds: pixel.R(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT),
 		VSync:  true,
 	}
@@ -103,15 +117,25 @@ func run() {
 	pieces := imdraw.New(nil)
 	updatePieces(pieces, board)
 
-	clock := time.Tick(time.Millisecond * 250)
-
 	for !win.Closed() {
 		if win.JustPressed(pixelgl.KeySpace) {
 			running = !running
-			win.SetTitle(getTitle(running))
+			win.SetTitle(getTitle(running, speed))
 		}
 		if win.Pressed(pixelgl.KeyEscape) {
 			win.SetClosed(true)
+		}
+		if win.JustPressed(pixelgl.KeyRight) {
+			speed++
+			clock = updateClock(clock, speed)
+			win.SetTitle(getTitle(running, speed))
+		}
+		if win.JustPressed(pixelgl.KeyLeft) {
+			if speed > 0 {
+				speed--
+			}
+			clock = updateClock(clock, speed)
+			win.SetTitle(getTitle(running, speed))
 		}
 		if win.Pressed(pixelgl.MouseButtonLeft) {
 			value := getValueUnderMouse(win, board)
@@ -130,13 +154,15 @@ func run() {
 			}
 		}
 
-		select {
-		case <-clock:
-			if running {
-				board = rules.UpdateBoard(board)
-				updatePieces(pieces, board)
+		if clock != nil {
+			select {
+			case <-clock.C:
+				if running {
+					board = rules.UpdateBoard(board)
+					updatePieces(pieces, board)
+				}
+			default:
 			}
-		default:
 		}
 
 		win.Clear(colornames.Darkgrey)

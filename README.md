@@ -10,6 +10,8 @@ Running the program will give you an empty 100x100 grid, and the game will be pa
 * Left mouse button: populate pieces
 * Right mouse button: delete pieces
 * Space: toggle running/paused
+* Right arrow: increase speed
+* Left arrow: decrease speed
 * Escape: exit
 
 The master branch contains rules which simply populate a new piece at random on each tick. There is also a rulesimpl branch which contains
