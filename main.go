@@ -10,13 +10,13 @@ import (
 )
 
 const (
-	CANVAS_WIDTH = 1024
+	CANVAS_WIDTH  = 1024
 	CANVAS_HEIGHT = 1024
 
-	BOARD_WIDTH = 100
+	BOARD_WIDTH  = 100
 	BOARD_HEIGHT = 100
 
-	GRID_WIDTH = float64(CANVAS_WIDTH) / BOARD_WIDTH
+	GRID_WIDTH  = float64(CANVAS_WIDTH) / BOARD_WIDTH
 	GRID_HEIGHT = float64(CANVAS_HEIGHT) / BOARD_HEIGHT
 )
 
@@ -64,9 +64,9 @@ func updatePieces(pieces *imdraw.IMDraw, board *Board) {
 				yUpper := float64(y+1)*GRID_HEIGHT - 1
 
 				pieces.Push(pixel.V(xLower, yLower),
-					    pixel.V(xLower, yUpper),
-					    pixel.V(xUpper, yUpper),
-					    pixel.V(xUpper, yLower))
+					pixel.V(xLower, yUpper),
+					pixel.V(xUpper, yUpper),
+					pixel.V(xUpper, yLower))
 				pieces.Polygon(0)
 			}
 		}
@@ -76,10 +76,9 @@ func updatePieces(pieces *imdraw.IMDraw, board *Board) {
 func getValueUnderMouse(win *pixelgl.Window, board *Board) *bool {
 	pos := win.MousePosition()
 	if pos.X < 0 || pos.X >= CANVAS_WIDTH ||
-	   pos.Y < 0 || pos.Y >= CANVAS_HEIGHT {
-		   return nil
-        }
-
+		pos.Y < 0 || pos.Y >= CANVAS_HEIGHT {
+		return nil
+	}
 
 	x := int(pos.X / GRID_WIDTH)
 	y := int(pos.Y / GRID_HEIGHT)
@@ -90,10 +89,10 @@ func getValueUnderMouse(win *pixelgl.Window, board *Board) *bool {
 func run() {
 	running := false
 
-	cfg := pixelgl.WindowConfig {
-		Title: getTitle(running),
+	cfg := pixelgl.WindowConfig{
+		Title:  getTitle(running),
 		Bounds: pixel.R(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT),
-		VSync: true,
+		VSync:  true,
 	}
 	win, err := pixelgl.NewWindow(cfg)
 	if err != nil {
