@@ -17,3 +17,7 @@ a simple implementation of the actual game of life rules.
 
 PRs gratefully received which make it more idiomatic, or simpler. I'd consider more efficient, but given its primary purpose not at the
 expense of complexity.
+
+## Screenshot
+
+![Screenshot showing running game of life](/docs/screenshot.png)
