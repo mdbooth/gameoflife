@@ -75,13 +75,12 @@ func updatePieces(pieces *imdraw.IMDraw, board *Board) {
 
 func getValueUnderMouse(win *pixelgl.Window, board *Board) *bool {
 	pos := win.MousePosition()
-	if pos.X < 0 || pos.X >= CANVAS_WIDTH ||
-		pos.Y < 0 || pos.Y >= CANVAS_HEIGHT {
-		return nil
-	}
-
 	x := int(pos.X / GRID_WIDTH)
 	y := int(pos.Y / GRID_HEIGHT)
+
+	if 0 > x || x >= BOARD_WIDTH || 0 > y || y >= BOARD_HEIGHT {
+		return nil
+	}
 
 	return &board[x][y]
 }
