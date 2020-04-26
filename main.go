@@ -55,7 +55,7 @@ func updatePieces(pieces *imdraw.IMDraw, board *rules.Board) {
 
 	for x := 0; x < rules.BOARD_WIDTH; x++ {
 		for y := 0; y < rules.BOARD_HEIGHT; y++ {
-			if board[x][y] {
+			if board.Pieces[x][y] {
 				xLower := float64(x)*GRID_WIDTH + 1
 				xUpper := float64(x+1)*GRID_WIDTH - 1
 				yLower := float64(y)*GRID_HEIGHT + 1
@@ -80,7 +80,7 @@ func getValueUnderMouse(win *pixelgl.Window, board *rules.Board) *bool {
 		return nil
 	}
 
-	return &board[x][y]
+	return &board.Pieces[x][y]
 }
 
 func run() {
@@ -98,10 +98,10 @@ func run() {
 
 	grid := initGrid()
 
-	var board rules.Board
+	board := rules.NewBoard()
 
 	pieces := imdraw.New(nil)
-	updatePieces(pieces, &board)
+	updatePieces(pieces, board)
 
 	clock := time.Tick(time.Millisecond * 250)
 
@@ -114,27 +114,27 @@ func run() {
 			win.SetClosed(true)
 		}
 		if win.Pressed(pixelgl.MouseButtonLeft) {
-			value := getValueUnderMouse(win, &board)
+			value := getValueUnderMouse(win, board)
 
 			if value != nil && !*value {
 				*value = true
-				updatePieces(pieces, &board)
+				updatePieces(pieces, board)
 			}
 		}
 		if win.Pressed(pixelgl.MouseButtonRight) {
-			value := getValueUnderMouse(win, &board)
+			value := getValueUnderMouse(win, board)
 
 			if value != nil && *value {
 				*value = false
-				updatePieces(pieces, &board)
+				updatePieces(pieces, board)
 			}
 		}
 
 		select {
 		case <-clock:
 			if running {
-				rules.UpdateBoard(&board)
-				updatePieces(pieces, &board)
+				board = rules.UpdateBoard(board)
+				updatePieces(pieces, board)
 			}
 		default:
 		}
